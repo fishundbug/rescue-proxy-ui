@@ -1,0 +1,109 @@
+/* Rescue Proxy 扩展样式 */
+
+.rescue-proxy-settings {
+    padding: 10px 0;
+}
+
+.rescue-proxy-section {
+    margin-bottom: 16px;
+}
+
+.rescue-proxy-section h4 {
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.rescue-proxy-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.rescue-proxy-input-group label {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.rescue-proxy-input-group input[type="text"],
+.rescue-proxy-input-group input[type="password"],
+.rescue-proxy-input-group input[type="number"] {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--SmartThemeBorderColor, #555);
+    background: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.2));
+    color: inherit;
+}
+
+/* 美化数字输入框 */
+.rescue-proxy-input-group input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.rescue-proxy-input-group input[type="number"]::-webkit-outer-spin-button,
+.rescue-proxy-input-group input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.rescue-proxy-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.rescue-proxy-status.connected {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+}
+
+.rescue-proxy-status.disconnected {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+.rescue-proxy-status-icon {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.rescue-proxy-status.connected .rescue-proxy-status-icon {
+    background-color: #22c55e;
+}
+
+.rescue-proxy-status.disconnected .rescue-proxy-status-icon {
+    background-color: #ef4444;
+}
+
+.rescue-proxy-info {
+    padding: 12px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 6px;
+    font-size: 0.85em;
+    margin-top: 12px;
+}
+
+.rescue-proxy-info code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+}
+
+/* 按钮样式 */
+.rescue-proxy-settings .menu_button {
+    display: inline-block;
+    width: auto;
+    min-width: 120px;
+    margin: 4px 0;
+    writing-mode: horizontal-tb;
+}
+
+.rescue-proxy-section .menu_button+.menu_button {
+    margin-left: 8px;
+}

@@ -1,0 +1,12 @@
+{
+    "display_name": "Rescue Proxy",
+    "loading_order": 100,
+    "requires": [],
+    "optional": [],
+    "js": "index.js",
+    "css": "style.css",
+    "author": "SillyTavern User",
+    "version": "1.0.0",
+    "homePage": "https://github.com/SillyTavern/SillyTavern",
+    "description": "AI API 中转代理配置面板"
+}
