@@ -225,6 +225,7 @@ async function checkUpdate() {
     const versionEl = document.getElementById('rescue_proxy_version_info');
 
     resultEl.textContent = '检查中...';
+    versionEl.textContent = '';
 
     try {
         const response = await fetch(`${PLUGIN_API_BASE}/check-update`, {
@@ -238,41 +239,36 @@ async function checkUpdate() {
 
         const data = await response.json();
 
-        // 显示版本信息
-        const localInfo = data.localCommit || data.localVersion;
-        const remoteInfo = data.latestCommit || '未知';
-        versionEl.textContent = `本地: ${localInfo} | 远程: ${remoteInfo}`;
+        // 构建显示内容
+        let html = '';
 
-        if (data.hasUpdate) {
-            resultEl.innerHTML = `
-                <div style="color: #fbbf24; margin-bottom: 8px;">
-                    🆕 发现新版本！
-                </div>
-                <div style="margin-bottom: 4px;">
-                    最新提交: <code>${data.latestCommit}</code>
-                </div>
-                <div style="margin-bottom: 8px; color: #888;">
-                    ${data.latestMessage}
-                </div>
-                <div>
-                    <a href="${data.repoUrl}" target="_blank" style="color: #60a5fa;">
-                        前往 GitHub 查看 →
-                    </a>
-                </div>
-            `;
+        for (const repo of data.repos || []) {
+            const localInfo = repo.localCommit || repo.localVersion || '未知';
+            const remoteInfo = repo.latestCommit || '未知';
+
+            html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">`;
+            html += `<div style="font-weight: bold; margin-bottom: 4px;">${repo.name}</div>`;
+            html += `<div style="font-size: 0.85em; color: #888;">本地: ${localInfo} | 远程: ${remoteInfo}</div>`;
+
+            if (repo.hasUpdate) {
+                html += `<div style="color: #fbbf24; margin-top: 4px;">🆕 有更新可用</div>`;
+                html += `<div style="font-size: 0.85em; color: #888; margin-top: 2px;">${repo.latestMessage}</div>`;
+                html += `<a href="${repo.repoUrl}" target="_blank" style="color: #60a5fa; font-size: 0.85em;">前往 GitHub →</a>`;
+            } else if (repo.localCommit) {
+                html += `<div style="color: #4ade80; margin-top: 4px;">✓ 已是最新</div>`;
+            } else {
+                html += `<div style="color: #888; margin-top: 4px;">无法确定版本</div>`;
+                html += `<a href="${repo.repoUrl}" target="_blank" style="color: #60a5fa; font-size: 0.85em;">查看仓库 →</a>`;
+            }
+
+            html += `</div>`;
+        }
+
+        resultEl.innerHTML = html;
+
+        if (data.hasAnyUpdate) {
             // @ts-ignore
             toastr.info('发现新版本可用', 'Rescue Proxy');
-        } else if (data.localCommit) {
-            resultEl.innerHTML = `<span style="color: #4ade80;">✓ 已是最新版本</span>`;
-        } else {
-            resultEl.innerHTML = `
-                <span style="color: #888;">无法确定本地版本（非 Git 安装）</span>
-                <div style="margin-top: 4px;">
-                    <a href="${data.repoUrl}" target="_blank" style="color: #60a5fa;">
-                        查看最新版本 →
-                    </a>
-                </div>
-            `;
         }
     } catch (error) {
         console.error('[RescueProxyUI] 检查更新失败:', error);
