@@ -217,6 +217,70 @@ async function testConnection() {
 }
 
 /**
+ * 检查 GitHub 更新
+ */
+async function checkUpdate() {
+    const context = SillyTavern.getContext();
+    const resultEl = document.getElementById('rescue_proxy_update_result');
+    const versionEl = document.getElementById('rescue_proxy_version_info');
+
+    resultEl.textContent = '检查中...';
+
+    try {
+        const response = await fetch(`${PLUGIN_API_BASE}/check-update`, {
+            headers: context.getRequestHeaders(),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || '检查失败');
+        }
+
+        const data = await response.json();
+
+        // 显示版本信息
+        const localInfo = data.localCommit || data.localVersion;
+        const remoteInfo = data.latestCommit || '未知';
+        versionEl.textContent = `本地: ${localInfo} | 远程: ${remoteInfo}`;
+
+        if (data.hasUpdate) {
+            resultEl.innerHTML = `
+                <div style="color: #fbbf24; margin-bottom: 8px;">
+                    🆕 发现新版本！
+                </div>
+                <div style="margin-bottom: 4px;">
+                    最新提交: <code>${data.latestCommit}</code>
+                </div>
+                <div style="margin-bottom: 8px; color: #888;">
+                    ${data.latestMessage}
+                </div>
+                <div>
+                    <a href="${data.repoUrl}" target="_blank" style="color: #60a5fa;">
+                        前往 GitHub 查看 →
+                    </a>
+                </div>
+            `;
+            // @ts-ignore
+            toastr.info('发现新版本可用', 'Rescue Proxy');
+        } else if (data.localCommit) {
+            resultEl.innerHTML = `<span style="color: #4ade80;">✓ 已是最新版本</span>`;
+        } else {
+            resultEl.innerHTML = `
+                <span style="color: #888;">无法确定本地版本（非 Git 安装）</span>
+                <div style="margin-top: 4px;">
+                    <a href="${data.repoUrl}" target="_blank" style="color: #60a5fa;">
+                        查看最新版本 →
+                    </a>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('[RescueProxyUI] 检查更新失败:', error);
+        resultEl.innerHTML = `<span style="color: #f87171;">✗ ${error.message}</span>`;
+    }
+}
+
+/**
  * 注册用户上下文到服务端
  */
 async function registerContext() {
@@ -335,6 +399,7 @@ async function init() {
     $('#rescue_proxy_save_settings').on('click', saveSettings);
     $('#rescue_proxy_test').on('click', testConnection);
     $('#rescue_proxy_import_btn').on('click', importProfile);
+    $('#rescue_proxy_check_update').on('click', checkUpdate);
 
     // 监听消息发送事件 - 在发送消息时注册聊天上下文（方案 B）
     eventSource.on(event_types.MESSAGE_SENT, setChatContext);
