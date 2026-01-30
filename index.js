@@ -8,9 +8,6 @@ const MODULE_NAME = 'rescue_proxy_ui';
 const PLUGIN_API_BASE = '/api/plugins/rescue-proxy';
 const PROXY_PORT = 5501;
 
-// 最近的请求 ID（用于确认收到消息）
-let lastRequestId = null;
-
 /**
  * 获取当前聊天上下文
  * @returns {Object|null}
@@ -297,22 +294,17 @@ async function registerContext() {
 }
 
 /**
- * 注入聊天上下文和请求 ID 到请求 header
+ * 注入聊天上下文到请求 header（用于测试连接等场景）
  */
 function setupAjaxPrefilter() {
     $.ajaxPrefilter((options, originalOptions, xhr) => {
         // 处理发往代理服务器的请求
         if (options.url && options.url.includes(`127.0.0.1:${PROXY_PORT}`)) {
             const chatContext = getCurrentChatContext();
-            // 生成唯一请求 ID
-            const requestId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-            lastRequestId = requestId;
-
-            xhr.setRequestHeader('X-Request-Id', requestId);
             if (chatContext) {
                 xhr.setRequestHeader('X-Chat-Context', JSON.stringify(chatContext));
                 xhr.setRequestHeader('X-User-Handle', 'default');
-                console.log(`[RescueProxyUI] 已注入上下文 (requestId: ${requestId}):`, chatContext.characterName);
+                console.log('[RescueProxyUI] 已注入聊天上下文:', chatContext.characterName);
             }
         }
     });
@@ -322,25 +314,17 @@ function setupAjaxPrefilter() {
     window.fetch = function (url, options = {}) {
         if (typeof url === 'string' && url.includes(`127.0.0.1:${PROXY_PORT}`)) {
             const chatContext = getCurrentChatContext();
-            // 生成唯一请求 ID
-            const requestId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-            lastRequestId = requestId;
-
-            options.headers = options.headers || {};
-            if (options.headers instanceof Headers) {
-                options.headers.set('X-Request-Id', requestId);
-                if (chatContext) {
+            if (chatContext) {
+                options.headers = options.headers || {};
+                if (options.headers instanceof Headers) {
                     options.headers.set('X-Chat-Context', JSON.stringify(chatContext));
                     options.headers.set('X-User-Handle', 'default');
-                }
-            } else {
-                options.headers['X-Request-Id'] = requestId;
-                if (chatContext) {
+                } else {
                     options.headers['X-Chat-Context'] = JSON.stringify(chatContext);
                     options.headers['X-User-Handle'] = 'default';
                 }
+                console.log('[RescueProxyUI] (fetch) 已注入聊天上下文:', chatContext.characterName);
             }
-            console.log(`[RescueProxyUI] (fetch) 已注入上下文 (requestId: ${requestId}):`, chatContext?.characterName);
         }
         return originalFetch.call(this, url, options);
     };
@@ -379,9 +363,9 @@ async function confirmReceived() {
         await fetch(`${PLUGIN_API_BASE}/confirm-received`, {
             method: 'POST',
             headers: context.getRequestHeaders(),
-            body: JSON.stringify({ requestId: lastRequestId }),
+            body: JSON.stringify({}),
         });
-        console.log(`[RescueProxyUI] 已确认收到消息 (requestId: ${lastRequestId})`);
+        console.log('[RescueProxyUI] 已确认收到消息');
     } catch (error) {
         console.error('[RescueProxyUI] 确认收到消息失败:', error);
     }
