@@ -2,41 +2,20 @@
 
 SillyTavern 前端扩展 —— Rescue Proxy 配置界面
 
-## ✨ 特性
+> ⚠️ **重要提示**：本扩展需要配合后端插件 [rescue-proxy](https://github.com/fishundbug/rescue-proxy) 一起使用才能正常工作。
+> 
+> 完整功能介绍请查看 [rescue-proxy README](https://github.com/fishundbug/rescue-proxy)。
 
-- 🔒 **完全无侵入** — 标准扩展机制，无需修改 SillyTavern 任何源代码
-- ⚙️ **配置管理** — 设置真实 API 地址和密钥
-- 📥 **一键导入** — 从 SillyTavern 现有配置导入
-- 🔗 **状态监控** — 显示代理服务器连接状态
-- ✅ **消息确认** — 通知后端浏览器已收到 AI 回复
-- 🔍 **检查更新** — 检查后端插件和前端扩展的 GitHub 最新版本
+## 📦 安装
 
-## 🛡️ 完全无侵入性设计
-
-本扩展采用 SillyTavern 标准扩展机制：
-
-- ✅ 不修改任何 SillyTavern 核心文件
-- ✅ 不干扰 SillyTavern 的正常更新
-- ✅ 通过事件监听和标准 API 实现功能
-- ✅ 可随时启用/禁用，不留任何痕迹
-- ✅ 卸载后 SillyTavern 完全恢复原状
-
-## 📦 依赖
-
-需配合后端插件 [rescue-proxy](https://github.com/fishundbug/rescue-proxy) 使用。
-
-## 🔧 安装
-
-支持两种安装方式：
-
-### 全局安装（所有用户可用）
+### 全局安装
 
 ```bash
 cd SillyTavern/public/scripts/extensions/third-party
 git clone https://github.com/fishundbug/rescue-proxy-ui.git
 ```
 
-### 用户安装（仅当前用户）
+### 用户安装
 
 在 SillyTavern 扩展管理中使用「安装扩展」功能，输入仓库地址：
 ```
@@ -45,21 +24,11 @@ https://github.com/fishundbug/rescue-proxy-ui
 
 刷新页面后扩展会自动加载。
 
-## ⚙️ 设置面板
+## 🛡️ 无侵入性
 
-在扩展设置中找到 **Rescue Proxy** 面板：
-
-### 真实 API 配置
-- **从 SillyTavern 导入** — 选择已有配置一键导入
-- **API 地址** — 真实 AI API 端点
-- **API Key** — 真实 API 密钥
-
-### 代理端点配置
-- **代理端口** — 本地代理端口（默认 5501）
-- **代理 API Key** — 可选，防止其他程序调用
-
-### 版本信息
-- **检查更新** — 检查后端插件和前端扩展是否有新版本
+- ✅ 不修改任何 SillyTavern 核心文件
+- ✅ 不干扰 SillyTavern 的正常更新
+- ✅ 可随时启用/禁用，卸载后完全恢复原状
 
 ## 📄 许可证
 

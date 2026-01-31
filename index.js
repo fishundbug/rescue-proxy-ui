@@ -8,6 +8,14 @@ const MODULE_NAME = 'rescue_proxy_ui';
 const PLUGIN_API_BASE = '/api/plugins/rescue-proxy';
 const PROXY_PORT = 5501;
 
+// 日志显示状态
+const PAGE_SIZE = 20;
+const INITIAL_PAGES = 4;
+let displayedLogs = [];
+let currentPage = 0;
+let totalHistoryLogs = 0;   // 历史日志总数
+let hasMoreHistory = false; // 是否有更多历史日志
+
 /**
  * 获取当前聊天上下文
  * @returns {Object|null}
@@ -294,6 +302,163 @@ async function registerContext() {
 }
 
 /**
+ * 加载日志（pending + 历史）
+ * @param {boolean} loadMore - 是否加载更多（追加而非替换）
+ */
+async function loadLogs(loadMore = false) {
+    try {
+        const context = SillyTavern.getContext();
+
+        // 获取 pending 日志
+        const pendingRes = await fetch(`${PLUGIN_API_BASE}/request-logs`, {
+            headers: context.getRequestHeaders(),
+        });
+        const pendingData = await pendingRes.json();
+        const pendingLogs = pendingData.logs || [];
+
+        // 计算要获取的历史日志数量
+        const currentHistoryCount = loadMore ? (displayedLogs.length - pendingLogs.length) : 0;
+        const offset = loadMore ? currentHistoryCount : 0;
+        const limit = loadMore ? PAGE_SIZE : (INITIAL_PAGES * PAGE_SIZE);
+
+        // 获取历史日志
+        const historyRes = await fetch(`${PLUGIN_API_BASE}/history-logs?offset=${offset}&limit=${limit}`, {
+            headers: context.getRequestHeaders(),
+        });
+        const historyData = await historyRes.json();
+        const historyLogs = historyData.logs || [];
+        totalHistoryLogs = historyData.total || 0;
+        hasMoreHistory = historyData.hasMore || false;
+
+        if (loadMore) {
+            // 追加历史日志
+            displayedLogs = [...pendingLogs, ...displayedLogs.slice(pendingLogs.length), ...historyLogs];
+        } else {
+            // 替换全部
+            displayedLogs = [...pendingLogs, ...historyLogs];
+            currentPage = 0;
+        }
+
+        renderLogs();
+    } catch (error) {
+        console.error('[RescueProxyUI] 加载日志失败:', error);
+    }
+}
+
+/**
+ * 清理日志显示
+ */
+function clearLogs() {
+    displayedLogs = [];
+    renderLogs();
+    // @ts-ignore
+    toastr.success('显示已清理', 'Rescue Proxy');
+}
+
+/**
+ * 清空历史记录（永久删除日志文件）
+ */
+async function deleteHistory() {
+    // @ts-ignore
+    if (!confirm('确定要永久删除所有历史记录吗？此操作不可恢复。')) {
+        return;
+    }
+
+    try {
+        const context = SillyTavern.getContext();
+        await fetch(`${PLUGIN_API_BASE}/clear-logs`, {
+            method: 'POST',
+            headers: context.getRequestHeaders(),
+            body: JSON.stringify({}),
+        });
+
+        await loadLogs();
+        // @ts-ignore
+        toastr.success('历史记录已清空', 'Rescue Proxy');
+    } catch (error) {
+        console.error('[RescueProxyUI] 清空历史记录失败:', error);
+    }
+}
+
+/**
+ * 渲染日志列表（分页显示）
+ */
+function renderLogs() {
+    const container = $('#rescue_proxy_logs_container');
+    const infoEl = $('#rescue_proxy_logs_info');
+
+    if (!displayedLogs || displayedLogs.length === 0) {
+        container.html('<div class="rescue-proxy-logs-empty">暂无请求记录</div>');
+        infoEl.text('');
+        return;
+    }
+
+    // 计算分页
+    const totalPages = Math.ceil(displayedLogs.length / PAGE_SIZE);
+    if (currentPage >= totalPages) currentPage = totalPages - 1;
+    if (currentPage < 0) currentPage = 0;
+
+    const startIdx = currentPage * PAGE_SIZE;
+    const endIdx = Math.min(startIdx + PAGE_SIZE, displayedLogs.length);
+    const pageLogs = displayedLogs.slice(startIdx, endIdx);
+
+    const html = pageLogs.map(log => {
+        const time = new Date(log.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const responseTime = log.responseTime ? `${(log.responseTime / 1000).toFixed(1)}s` : '-';
+        const statusText = log.status === 'success' ? '成功' : log.status === 'error' ? '失败' : '进行中';
+
+        return `
+            <div class="rescue-proxy-log-item">
+                <span class="rescue-proxy-log-time">${time}</span>
+                <span class="rescue-proxy-log-model" title="${log.model}">${log.model}</span>
+                <span class="rescue-proxy-log-character" title="${log.character}">${log.character}</span>
+                <span class="rescue-proxy-log-time-value">${responseTime}</span>
+                <span class="rescue-proxy-log-status ${log.status}">${statusText}</span>
+            </div>
+        `;
+    }).join('');
+
+    container.html(html);
+
+    // 显示分页信息
+    const pendingCount = displayedLogs.filter(l => l.status === 'pending').length;
+    let info = `第 ${currentPage + 1}/${totalPages} 页，已加载 ${displayedLogs.length}/${totalHistoryLogs + pendingCount} 条`;
+    if (pendingCount > 0) info += `（${pendingCount} 个进行中）`;
+
+    infoEl.html(`
+        <span>${info}</span>
+        <span class="rescue-proxy-pagination">
+            <button class="menu_button rescue-proxy-page-btn" ${currentPage === 0 ? 'disabled' : ''} onclick="window.rescueProxyPrevPage()">上一页</button>
+            <button class="menu_button rescue-proxy-page-btn" ${currentPage >= totalPages - 1 ? 'disabled' : ''} onclick="window.rescueProxyNextPage()">下一页</button>
+            ${hasMoreHistory ? '<button class="menu_button rescue-proxy-page-btn" onclick="window.rescueProxyShowMore()">显示更多</button>' : ''}
+        </span>
+    `);
+}
+
+// 暴露翻页函数到全局
+// @ts-ignore
+window.rescueProxyPrevPage = function () {
+    if (currentPage > 0) {
+        currentPage--;
+        renderLogs();
+    }
+};
+
+// @ts-ignore
+window.rescueProxyNextPage = function () {
+    const totalPages = Math.ceil(displayedLogs.length / PAGE_SIZE);
+    if (currentPage < totalPages - 1) {
+        currentPage++;
+        renderLogs();
+    }
+};
+
+// @ts-ignore
+window.rescueProxyShowMore = function () {
+    loadLogs(true);
+};
+
+/**
  * 注入聊天上下文到请求 header（用于测试连接等场景）
  */
 function setupAjaxPrefilter() {
@@ -397,6 +562,9 @@ async function init() {
     $('#rescue_proxy_test').on('click', testConnection);
     $('#rescue_proxy_import_btn').on('click', importProfile);
     $('#rescue_proxy_check_update').on('click', checkUpdate);
+    $('#rescue_proxy_refresh_logs').on('click', () => loadLogs());
+    $('#rescue_proxy_clear_logs').on('click', clearLogs);
+    $('#rescue_proxy_delete_history').on('click', deleteHistory);
 
     // 监听消息发送事件 - 在发送消息前同步聊天上下文到后端
     eventSource.on(event_types.MESSAGE_SENT, setChatContext);
@@ -417,6 +585,9 @@ async function init() {
 
     // 加载可导入的配置列表
     await loadAvailableProfiles();
+
+    // 加载请求日志
+    await loadLogs();
 
     console.log('[RescueProxyUI] 初始化完成');
     console.log(`[RescueProxyUI] 代理服务器地址: http://127.0.0.1:${PROXY_PORT}/v1`);

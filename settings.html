@@ -82,6 +82,23 @@
                     </div>
                     <div id="rescue_proxy_update_result" style="font-size: 0.9em;"></div>
                 </div>
+
+                <div class="rescue-proxy-section">
+                    <h4>请求日志</h4>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <button id="rescue_proxy_refresh_logs" class="menu_button">刷新</button>
+                        <button id="rescue_proxy_clear_logs" class="menu_button">清理</button>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
+                        <button id="rescue_proxy_delete_history" class="menu_button rescue-proxy-danger-btn"
+                            title="永久删除日志文件中的所有记录">清空历史记录</button>
+                        <span style="font-size: 0.8em; color: #888;">⚠️ 将永久删除日志文件</span>
+                    </div>
+                    <div id="rescue_proxy_logs_container" class="rescue-proxy-logs">
+                        <div class="rescue-proxy-logs-empty">暂无请求记录</div>
+                    </div>
+                    <div id="rescue_proxy_logs_info" class="rescue-proxy-logs-info"></div>
+                </div>
             </div>
         </div>
     </div>

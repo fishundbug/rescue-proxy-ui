@@ -107,3 +107,148 @@
 .rescue-proxy-section .menu_button+.menu_button {
     margin-left: 8px;
 }
+
+/* 危险按钮样式 */
+.rescue-proxy-danger-btn {
+    background: rgba(220, 38, 38, 0.2) !important;
+    border-color: #dc2626 !important;
+    color: #f87171 !important;
+}
+
+.rescue-proxy-danger-btn:hover {
+    background: rgba(220, 38, 38, 0.4) !important;
+}
+
+/* 日志标签页样式 */
+.rescue-proxy-log-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.rescue-proxy-tab {
+    padding: 6px 16px;
+    border: 1px solid var(--SmartThemeBorderColor, #555);
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s;
+}
+
+.rescue-proxy-tab:hover {
+    background: var(--SmartThemeBlurTintColor, rgba(255, 255, 255, 0.1));
+}
+
+.rescue-proxy-tab.active {
+    background: var(--SmartThemeQuoteColor, #3b82f6);
+    border-color: var(--SmartThemeQuoteColor, #3b82f6);
+    color: white;
+}
+
+/* 请求日志样式 */
+.rescue-proxy-logs {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--SmartThemeBorderColor, #555);
+    border-radius: 6px;
+    background: var(--SmartThemeBlurTintColor, rgba(0, 0, 0, 0.2));
+}
+
+.rescue-proxy-logs-info {
+    margin-top: 8px;
+    font-size: 0.85em;
+    color: #888;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rescue-proxy-pagination {
+    display: flex;
+    gap: 8px;
+}
+
+.rescue-proxy-page-btn {
+    padding: 4px 10px !important;
+    min-width: auto !important;
+    font-size: 0.85em !important;
+}
+
+.rescue-proxy-page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.rescue-proxy-logs-empty {
+    padding: 16px;
+    text-align: center;
+    color: #888;
+    font-size: 0.9em;
+}
+
+.rescue-proxy-log-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--SmartThemeBorderColor, #333);
+    font-size: 0.85em;
+}
+
+.rescue-proxy-log-item:last-child {
+    border-bottom: none;
+}
+
+.rescue-proxy-log-time {
+    color: #888;
+    font-size: 0.85em;
+    min-width: 70px;
+}
+
+.rescue-proxy-log-model {
+    color: #60a5fa;
+    font-weight: 500;
+    min-width: 80px;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rescue-proxy-log-character {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rescue-proxy-log-time-value {
+    color: #fbbf24;
+    min-width: 50px;
+    text-align: right;
+}
+
+.rescue-proxy-log-status {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    min-width: 50px;
+    text-align: center;
+}
+
+.rescue-proxy-log-status.success {
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+}
+
+.rescue-proxy-log-status.error {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+.rescue-proxy-log-status.pending {
+    background: rgba(250, 204, 21, 0.2);
+    color: #fbbf24;
+}
