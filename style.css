@@ -1,5 +1,52 @@
 /* Rescue Proxy 扩展样式 */
 
+/* 标签页导航 */
+.rescue-proxy-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.rescue-proxy-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: #999;
+    transition: all 0.2s ease;
+}
+
+.rescue-proxy-tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #ccc;
+}
+
+.rescue-proxy-tab.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.rescue-proxy-tab i {
+    font-size: 0.85em;
+}
+
+/* 标签页内容 */
+.rescue-proxy-tab-content {
+    display: none;
+}
+
+.rescue-proxy-tab-content.active {
+    display: block;
+}
+
 .rescue-proxy-settings {
     padding: 10px 0;
 }
@@ -11,6 +58,42 @@
 .rescue-proxy-section h4 {
     margin-bottom: 8px;
     font-weight: 600;
+}
+
+/* 可折叠区块 */
+.rescue-proxy-collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 8px 10px;
+    margin: 0 -10px 8px -10px;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.rescue-proxy-collapsible-header:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.rescue-proxy-collapsible-header i {
+    font-size: 0.8em;
+    opacity: 0.6;
+    transition: transform 0.2s ease;
+}
+
+.rescue-proxy-collapsible.collapsed .rescue-proxy-collapsible-header i {
+    transform: rotate(-90deg);
+}
+
+.rescue-proxy-collapsible-content {
+    transition: max-height 0.2s ease, opacity 0.2s ease;
+    overflow: hidden;
+}
+
+.rescue-proxy-collapsible.collapsed .rescue-proxy-collapsible-content {
+    max-height: 0;
+    opacity: 0;
 }
 
 .rescue-proxy-input-group {

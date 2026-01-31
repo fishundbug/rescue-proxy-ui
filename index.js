@@ -566,6 +566,20 @@ async function init() {
     $('#rescue_proxy_clear_logs').on('click', clearLogs);
     $('#rescue_proxy_delete_history').on('click', deleteHistory);
 
+    // 标签页切换
+    $('.rescue-proxy-tab').on('click', function () {
+        const tabName = $(this).data('tab');
+        $('.rescue-proxy-tab').removeClass('active');
+        $(this).addClass('active');
+        $('.rescue-proxy-tab-content').removeClass('active');
+        $(`.rescue-proxy-tab-content[data-tab-content="${tabName}"]`).addClass('active');
+    });
+
+    // 可折叠区块
+    $('.rescue-proxy-collapsible-header').on('click', function () {
+        $(this).closest('.rescue-proxy-collapsible').toggleClass('collapsed');
+    });
+
     // 监听消息发送事件 - 在发送消息前同步聊天上下文到后端
     eventSource.on(event_types.MESSAGE_SENT, setChatContext);
     eventSource.on(event_types.USER_MESSAGE_RENDERED, setChatContext);

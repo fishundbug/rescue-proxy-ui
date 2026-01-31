@@ -6,98 +6,130 @@
         </div>
         <div class="inline-drawer-content">
             <div class="rescue-proxy-settings">
-                <div class="rescue-proxy-section">
-                    <h4>状态</h4>
-                    <div id="rescue_proxy_status" class="rescue-proxy-status disconnected">
-                        <span class="rescue-proxy-status-icon"></span>
-                        <span class="rescue-proxy-status-text">未连接</span>
+                <!-- 标签页导航 -->
+                <div class="rescue-proxy-tabs">
+                    <div class="rescue-proxy-tab active" data-tab="settings">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>设置</span>
+                    </div>
+                    <div class="rescue-proxy-tab" data-tab="logs">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>日志</span>
                     </div>
                 </div>
 
-                <div class="rescue-proxy-section">
-                    <h4>真实 API 配置</h4>
-
-                    <div class="rescue-proxy-input-group">
-                        <label for="rescue_proxy_import_profile">从 SillyTavern 导入配置</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <select id="rescue_proxy_import_profile" style="flex: 1;">
-                                <option value="">-- 选择配置 --</option>
-                            </select>
-                            <button id="rescue_proxy_import_btn" class="menu_button"
-                                style="min-width: 60px;">导入</button>
+                <!-- 设置标签页内容 -->
+                <div class="rescue-proxy-tab-content active" data-tab-content="settings">
+                    <div class="rescue-proxy-section">
+                        <h4>状态</h4>
+                        <div id="rescue_proxy_status" class="rescue-proxy-status disconnected">
+                            <span class="rescue-proxy-status-icon"></span>
+                            <span class="rescue-proxy-status-text">未连接</span>
                         </div>
                     </div>
 
-                    <div class="rescue-proxy-input-group">
-                        <label for="rescue_proxy_api_url">API 地址</label>
-                        <input type="text" id="rescue_proxy_api_url" placeholder="https://api.openai.com/v1" />
+
+                    <div class="rescue-proxy-section rescue-proxy-collapsible">
+                        <h4 class="rescue-proxy-collapsible-header">
+                            <span>真实 API 配置</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </h4>
+                        <div class="rescue-proxy-collapsible-content">
+                            <div class="rescue-proxy-input-group">
+                                <label for="rescue_proxy_import_profile">从 SillyTavern 导入配置</label>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <select id="rescue_proxy_import_profile" style="flex: 1;">
+                                        <option value="">-- 选择配置 --</option>
+                                    </select>
+                                    <button id="rescue_proxy_import_btn" class="menu_button"
+                                        style="min-width: 60px;">导入</button>
+                                </div>
+                            </div>
+
+                            <div class="rescue-proxy-input-group">
+                                <label for="rescue_proxy_api_url">API 地址</label>
+                                <input type="text" id="rescue_proxy_api_url" placeholder="https://api.openai.com/v1" />
+                            </div>
+
+                            <div class="rescue-proxy-input-group">
+                                <label for="rescue_proxy_api_key">API Key</label>
+                                <input type="text" id="rescue_proxy_api_key" placeholder="sk-..." />
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="rescue-proxy-input-group">
-                        <label for="rescue_proxy_api_key">API Key</label>
-                        <input type="text" id="rescue_proxy_api_key" placeholder="sk-..." />
+                    <div class="rescue-proxy-section rescue-proxy-collapsible">
+                        <h4 class="rescue-proxy-collapsible-header">
+                            <span>代理端点配置</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </h4>
+                        <div class="rescue-proxy-collapsible-content">
+                            <div class="rescue-proxy-input-group">
+                                <label for="rescue_proxy_port">代理端口</label>
+                                <input type="number" id="rescue_proxy_port" placeholder="5501" min="1" max="65535" />
+                                <small style="color: #888; font-size: 0.8em;">修改端口后需重启 SillyTavern 生效</small>
+                            </div>
+
+                            <div class="rescue-proxy-input-group">
+                                <label for="rescue_proxy_proxy_api_key">代理 API Key（可选）</label>
+                                <input type="text" id="rescue_proxy_proxy_api_key" placeholder="留空则不验证" />
+                                <small style="color: #888; font-size: 0.8em;">用于验证请求来源，防止其他程序调用</small>
+                            </div>
+
+                            <button id="rescue_proxy_save_settings" class="menu_button">保存配置</button>
+                        </div>
+                    </div>
+
+                    <div class="rescue-proxy-section rescue-proxy-collapsible collapsed">
+                        <h4 class="rescue-proxy-collapsible-header">
+                            <span>使用说明</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </h4>
+                        <div class="rescue-proxy-collapsible-content">
+                            <div class="rescue-proxy-info">
+                                <p>1. 在上方配置真实的 AI API 地址和密钥</p>
+                                <p>2. 在 SillyTavern 的 <strong>Chat Completion API</strong> 设置中：</p>
+                                <p style="margin-left: 12px;">• 选择 <strong>Custom (OpenAI-compatible)</strong></p>
+                                <p style="margin-left: 12px;">• 将 API 地址设为：</p>
+                                <p><code id="rescue_proxy_endpoint">http://127.0.0.1:5501/v1</code></p>
+                                <p style="margin-top: 8px;">3. 将 API Key 设为上方的"代理 API Key"（若未配置则可填任意值）</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rescue-proxy-section">
+                        <button id="rescue_proxy_test" class="menu_button">测试代理服务器</button>
+                        <div id="rescue_proxy_test_result" style="margin-top: 8px; font-size: 0.9em;"></div>
+                    </div>
+
+                    <div class="rescue-proxy-section">
+                        <h4>版本信息</h4>
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                            <button id="rescue_proxy_check_update" class="menu_button">检查更新</button>
+                            <span id="rescue_proxy_version_info" style="font-size: 0.9em; color: #888;"></span>
+                        </div>
+                        <div id="rescue_proxy_update_result" style="font-size: 0.9em;"></div>
                     </div>
                 </div>
 
-                <div class="rescue-proxy-section">
-                    <h4>代理端点配置</h4>
-
-                    <div class="rescue-proxy-input-group">
-                        <label for="rescue_proxy_port">代理端口</label>
-                        <input type="number" id="rescue_proxy_port" placeholder="5501" min="1" max="65535" />
-                        <small style="color: #888; font-size: 0.8em;">修改端口后需重启 SillyTavern 生效</small>
+                <!-- 日志标签页内容 -->
+                <div class="rescue-proxy-tab-content" data-tab-content="logs">
+                    <div class="rescue-proxy-section">
+                        <h4>请求日志</h4>
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                            <button id="rescue_proxy_refresh_logs" class="menu_button">刷新</button>
+                            <button id="rescue_proxy_clear_logs" class="menu_button">清理</button>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
+                            <button id="rescue_proxy_delete_history" class="menu_button rescue-proxy-danger-btn"
+                                title="永久删除日志文件中的所有记录">清空历史记录</button>
+                            <span style="font-size: 0.8em; color: #888;">⚠️ 将永久删除日志文件</span>
+                        </div>
+                        <div id="rescue_proxy_logs_container" class="rescue-proxy-logs">
+                            <div class="rescue-proxy-logs-empty">暂无请求记录</div>
+                        </div>
+                        <div id="rescue_proxy_logs_info" class="rescue-proxy-logs-info"></div>
                     </div>
-
-                    <div class="rescue-proxy-input-group">
-                        <label for="rescue_proxy_proxy_api_key">代理 API Key（可选）</label>
-                        <input type="text" id="rescue_proxy_proxy_api_key" placeholder="留空则不验证" />
-                        <small style="color: #888; font-size: 0.8em;">用于验证请求来源，防止其他程序调用</small>
-                    </div>
-
-                    <button id="rescue_proxy_save_settings" class="menu_button">保存配置</button>
-                </div>
-
-                <div class="rescue-proxy-section">
-                    <h4>使用说明</h4>
-                    <div class="rescue-proxy-info">
-                        <p>1. 在上方配置真实的 AI API 地址和密钥</p>
-                        <p>2. 在 SillyTavern 的 <strong>Chat Completion API</strong> 设置中：</p>
-                        <p style="margin-left: 12px;">• 选择 <strong>Custom (OpenAI-compatible)</strong></p>
-                        <p style="margin-left: 12px;">• 将 API 地址设为：</p>
-                        <p><code id="rescue_proxy_endpoint">http://127.0.0.1:5501/v1</code></p>
-                        <p style="margin-top: 8px;">3. 将 API Key 设为上方的"代理 API Key"（若未配置则可填任意值）</p>
-                    </div>
-                </div>
-
-                <div class="rescue-proxy-section">
-                    <button id="rescue_proxy_test" class="menu_button">测试代理服务器</button>
-                    <div id="rescue_proxy_test_result" style="margin-top: 8px; font-size: 0.9em;"></div>
-                </div>
-
-                <div class="rescue-proxy-section">
-                    <h4>版本信息</h4>
-                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-                        <button id="rescue_proxy_check_update" class="menu_button">检查更新</button>
-                        <span id="rescue_proxy_version_info" style="font-size: 0.9em; color: #888;"></span>
-                    </div>
-                    <div id="rescue_proxy_update_result" style="font-size: 0.9em;"></div>
-                </div>
-
-                <div class="rescue-proxy-section">
-                    <h4>请求日志</h4>
-                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                        <button id="rescue_proxy_refresh_logs" class="menu_button">刷新</button>
-                        <button id="rescue_proxy_clear_logs" class="menu_button">清理</button>
-                    </div>
-                    <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
-                        <button id="rescue_proxy_delete_history" class="menu_button rescue-proxy-danger-btn"
-                            title="永久删除日志文件中的所有记录">清空历史记录</button>
-                        <span style="font-size: 0.8em; color: #888;">⚠️ 将永久删除日志文件</span>
-                    </div>
-                    <div id="rescue_proxy_logs_container" class="rescue-proxy-logs">
-                        <div class="rescue-proxy-logs-empty">暂无请求记录</div>
-                    </div>
-                    <div id="rescue_proxy_logs_info" class="rescue-proxy-logs-info"></div>
                 </div>
             </div>
         </div>
