@@ -335,3 +335,79 @@
     background: rgba(250, 204, 21, 0.2);
     color: #fbbf24;
 }
+
+/* 终端日志样式 */
+.rescue-proxy-console {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--SmartThemeBorderColor, #555);
+    border-radius: 6px;
+    background: #1a1a1a;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.8em;
+    padding: 8px;
+}
+
+.rescue-proxy-console-empty {
+    padding: 12px;
+    text-align: center;
+    color: #666;
+}
+
+.rescue-proxy-console-item {
+    display: flex;
+    gap: 8px;
+    padding: 2px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    line-height: 1.4;
+}
+
+.rescue-proxy-console-item:last-child {
+    border-bottom: none;
+}
+
+.rescue-proxy-console-time {
+    color: #666;
+    flex-shrink: 0;
+}
+
+.rescue-proxy-console-source {
+    flex-shrink: 0;
+    font-size: 0.85em;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+.rescue-proxy-console-source.backend {
+    background: rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+}
+
+.rescue-proxy-console-source.frontend {
+    background: rgba(168, 85, 247, 0.3);
+    color: #c084fc;
+}
+
+.rescue-proxy-console-level {
+    flex-shrink: 0;
+    width: 40px;
+    text-align: center;
+}
+
+.rescue-proxy-console-level.log {
+    color: #9ca3af;
+}
+
+.rescue-proxy-console-level.error {
+    color: #f87171;
+}
+
+.rescue-proxy-console-level.warn {
+    color: #fbbf24;
+}
+
+.rescue-proxy-console-message {
+    color: #d1d5db;
+    word-break: break-all;
+    flex: 1;
+}

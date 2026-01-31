@@ -16,6 +16,47 @@ let currentPage = 0;
 let totalHistoryLogs = 0;   // 历史日志总数
 let hasMoreHistory = false; // 是否有更多历史日志
 
+// 终端日志状态
+let consoleLogs = [];
+let consoleFollowInterval = null;
+let lastConsoleTimestamp = 0;
+const frontendLogBuffer = [];  // 前端日志缓冲区
+
+// 拦截前端 console 收集日志
+const originalConsoleLog = console.log;
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+
+function collectFrontendLog(level, args) {
+    // 只收集插件相关的日志
+    const message = args.map(arg =>
+        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+    ).join(' ');
+
+    if (message.includes('[RescueProxy')) {
+        frontendLogBuffer.push({
+            timestamp: Date.now(),
+            level,
+            message
+        });
+    }
+}
+
+console.log = function (...args) {
+    collectFrontendLog('log', args);
+    originalConsoleLog.apply(console, args);
+};
+
+console.error = function (...args) {
+    collectFrontendLog('error', args);
+    originalConsoleError.apply(console, args);
+};
+
+console.warn = function (...args) {
+    collectFrontendLog('warn', args);
+    originalConsoleWarn.apply(console, args);
+};
+
 /**
  * 获取当前聊天上下文
  * @returns {Object|null}
@@ -459,6 +500,130 @@ window.rescueProxyShowMore = function () {
 };
 
 /**
+ * 加载终端日志
+ */
+async function loadConsoleLogs(since = 0) {
+    try {
+        const context = SillyTavern.getContext();
+
+        // 先上传前端日志
+        if (frontendLogBuffer.length > 0) {
+            await fetch(`${PLUGIN_API_BASE}/console-logs`, {
+                method: 'POST',
+                headers: {
+                    ...context.getRequestHeaders(),
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ logs: frontendLogBuffer })
+            });
+            frontendLogBuffer.length = 0;
+        }
+
+        // 获取所有日志
+        const res = await fetch(`${PLUGIN_API_BASE}/console-logs?since=${since}`, {
+            headers: context.getRequestHeaders(),
+        });
+        const data = await res.json();
+        const newLogs = data.logs || [];
+
+        if (since > 0) {
+            // 追加模式
+            consoleLogs = [...consoleLogs, ...newLogs];
+            // 限制显示数量
+            if (consoleLogs.length > 500) {
+                consoleLogs = consoleLogs.slice(-500);
+            }
+        } else {
+            // 刷新模式 - 重置并获取全部
+            consoleLogs = newLogs;
+            lastConsoleTimestamp = 0;
+        }
+
+        // 更新时间戳
+        if (consoleLogs.length > 0) {
+            lastConsoleTimestamp = consoleLogs[consoleLogs.length - 1].timestamp;
+        }
+
+        renderConsoleLogs();
+    } catch (error) {
+        console.error('[RescueProxyUI] 加载终端日志失败:', error);
+    }
+}
+
+/**
+ * 渲染终端日志
+ */
+function renderConsoleLogs() {
+    const container = $('#rescue_proxy_console_container');
+
+    if (!consoleLogs || consoleLogs.length === 0) {
+        container.html('<div class="rescue-proxy-console-empty">暂无终端日志</div>');
+        return;
+    }
+
+    const html = consoleLogs.map(log => {
+        const time = new Date(log.timestamp).toLocaleTimeString('zh-CN', {
+            hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        const sourceLabel = log.source === 'backend' ? '后端' : '前端';
+        const levelLabel = log.level === 'error' ? 'ERR' : log.level === 'warn' ? 'WARN' : 'LOG';
+
+        return `
+            <div class="rescue-proxy-console-item">
+                <span class="rescue-proxy-console-time">${time}</span>
+                <span class="rescue-proxy-console-source ${log.source}">${sourceLabel}</span>
+                <span class="rescue-proxy-console-level ${log.level}">${levelLabel}</span>
+                <span class="rescue-proxy-console-message">${escapeHtml(log.message)}</span>
+            </div>
+        `;
+    }).join('');
+
+    container.html(html);
+
+    // 如果开启追踪，滚动到底部
+    if ($('#rescue_proxy_console_follow').is(':checked')) {
+        container.scrollTop(container[0].scrollHeight);
+    }
+}
+
+/**
+ * 清理终端日志显示
+ */
+function clearConsoleLogs() {
+    consoleLogs = [];
+    lastConsoleTimestamp = 0;
+    renderConsoleLogs();
+}
+
+/**
+ * 开始/停止追踪
+ */
+function toggleConsoleFollow(enable) {
+    if (enable) {
+        // 每 2 秒刷新一次
+        consoleFollowInterval = setInterval(() => {
+            loadConsoleLogs(lastConsoleTimestamp);
+        }, 2000);
+        // 立即加载一次
+        loadConsoleLogs(0);
+    } else {
+        if (consoleFollowInterval) {
+            clearInterval(consoleFollowInterval);
+            consoleFollowInterval = null;
+        }
+    }
+}
+
+/**
+ * HTML 转义
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
  * 注入聊天上下文到请求 header（用于测试连接等场景）
  */
 function setupAjaxPrefilter() {
@@ -565,6 +730,13 @@ async function init() {
     $('#rescue_proxy_refresh_logs').on('click', () => loadLogs());
     $('#rescue_proxy_clear_logs').on('click', clearLogs);
     $('#rescue_proxy_delete_history').on('click', deleteHistory);
+
+    // 终端日志事件
+    $('#rescue_proxy_refresh_console').on('click', () => loadConsoleLogs(0));
+    $('#rescue_proxy_clear_console').on('click', clearConsoleLogs);
+    $('#rescue_proxy_console_follow').on('change', function () {
+        toggleConsoleFollow($(this).is(':checked'));
+    });
 
     // 标签页切换
     $('.rescue-proxy-tab').on('click', function () {

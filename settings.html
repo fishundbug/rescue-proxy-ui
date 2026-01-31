@@ -31,7 +31,7 @@
 
                     <div class="rescue-proxy-section rescue-proxy-collapsible">
                         <h4 class="rescue-proxy-collapsible-header">
-                            <span>真实 API 配置</span>
+                            <span>代理配置</span>
                             <i class="fa-solid fa-chevron-down"></i>
                         </h4>
                         <div class="rescue-proxy-collapsible-content">
@@ -55,15 +55,7 @@
                                 <label for="rescue_proxy_api_key">API Key</label>
                                 <input type="text" id="rescue_proxy_api_key" placeholder="sk-..." />
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="rescue-proxy-section rescue-proxy-collapsible">
-                        <h4 class="rescue-proxy-collapsible-header">
-                            <span>代理端点配置</span>
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </h4>
-                        <div class="rescue-proxy-collapsible-content">
                             <div class="rescue-proxy-input-group">
                                 <label for="rescue_proxy_port">代理端口</label>
                                 <input type="number" id="rescue_proxy_port" placeholder="5501" min="1" max="65535" />
@@ -114,21 +106,47 @@
 
                 <!-- 日志标签页内容 -->
                 <div class="rescue-proxy-tab-content" data-tab-content="logs">
-                    <div class="rescue-proxy-section">
-                        <h4>请求日志</h4>
-                        <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                            <button id="rescue_proxy_refresh_logs" class="menu_button">刷新</button>
-                            <button id="rescue_proxy_clear_logs" class="menu_button">清理</button>
+                    <div class="rescue-proxy-section rescue-proxy-collapsible">
+                        <h4 class="rescue-proxy-collapsible-header">
+                            <span>请求日志</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </h4>
+                        <div class="rescue-proxy-collapsible-content">
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <button id="rescue_proxy_refresh_logs" class="menu_button">刷新</button>
+                                <button id="rescue_proxy_clear_logs" class="menu_button">清理</button>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
+                                <button id="rescue_proxy_delete_history" class="menu_button rescue-proxy-danger-btn"
+                                    title="永久删除日志文件中的所有记录">清空历史记录</button>
+                                <span style="font-size: 0.8em; color: #888;">⚠️ 将永久删除日志文件</span>
+                            </div>
+                            <div id="rescue_proxy_logs_container" class="rescue-proxy-logs">
+                                <div class="rescue-proxy-logs-empty">暂无请求记录</div>
+                            </div>
+                            <div id="rescue_proxy_logs_info" class="rescue-proxy-logs-info"></div>
                         </div>
-                        <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
-                            <button id="rescue_proxy_delete_history" class="menu_button rescue-proxy-danger-btn"
-                                title="永久删除日志文件中的所有记录">清空历史记录</button>
-                            <span style="font-size: 0.8em; color: #888;">⚠️ 将永久删除日志文件</span>
+                    </div>
+
+                    <div class="rescue-proxy-section rescue-proxy-collapsible">
+                        <h4 class="rescue-proxy-collapsible-header">
+                            <span>终端日志</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </h4>
+                        <div class="rescue-proxy-collapsible-content">
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
+                                <button id="rescue_proxy_refresh_console" class="menu_button">刷新</button>
+                                <button id="rescue_proxy_clear_console" class="menu_button">清理</button>
+                                <label
+                                    style="display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: auto;">
+                                    <input type="checkbox" id="rescue_proxy_console_follow" />
+                                    <span style="font-size: 0.85em;">追踪</span>
+                                </label>
+                            </div>
+                            <div id="rescue_proxy_console_container" class="rescue-proxy-console">
+                                <div class="rescue-proxy-console-empty">暂无终端日志</div>
+                            </div>
                         </div>
-                        <div id="rescue_proxy_logs_container" class="rescue-proxy-logs">
-                            <div class="rescue-proxy-logs-empty">暂无请求记录</div>
-                        </div>
-                        <div id="rescue_proxy_logs_info" class="rescue-proxy-logs-info"></div>
                     </div>
                 </div>
             </div>
