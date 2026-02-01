@@ -2,6 +2,8 @@
 
 SillyTavern 前端扩展 —— Rescue Proxy 配置界面
 
+中文 | [English](README_EN.md)
+
 > ⚠️ **重要提示**：本扩展需要配合后端插件 [rescue-proxy](https://github.com/fishundbug/rescue-proxy) 一起使用才能正常工作。
 > 
 > 完整功能介绍请查看 [rescue-proxy README](https://github.com/fishundbug/rescue-proxy)。

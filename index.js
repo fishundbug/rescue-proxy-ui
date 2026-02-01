@@ -7,6 +7,14 @@
 const MODULE_NAME = 'rescue_proxy_ui';
 const PLUGIN_API_BASE = '/api/plugins/rescue-proxy';
 const PROXY_PORT = 5501;
+const EXTENSION_PATH = 'scripts/extensions/third-party/rescue-proxy-ui';
+
+// i18n
+let localeData = {};
+let i18nFunctions = {
+    addLocaleData: null,
+    getCurrentLocale: () => navigator.language || 'en',
+};
 
 // 日志显示状态
 const PAGE_SIZE = 20;
@@ -99,8 +107,61 @@ function updateStatus(connected, port = PROXY_PORT) {
         statusEl.className = `rescue-proxy-status ${connected ? 'connected' : 'disconnected'}`;
     }
     if (textEl) {
-        textEl.textContent = connected ? `已连接 (端口 ${port})` : '未连接';
+        textEl.textContent = connected
+            ? t('rp_status_connected', 'Connected') + ` (${t('rp_port', 'Port')} ${port})`
+            : t('rp_status_disconnected', 'Disconnected');
     }
+}
+
+/**
+ * 加载国际化模块
+ */
+async function loadI18nModule() {
+    try {
+        const i18n = await import('../../../i18n.js');
+        if (i18n.addLocaleData) i18nFunctions.addLocaleData = i18n.addLocaleData;
+        if (i18n.getCurrentLocale) i18nFunctions.getCurrentLocale = i18n.getCurrentLocale;
+        return true;
+    } catch (error) {
+        console.log('[RescueProxyUI] i18n module not available, using fallback');
+        return false;
+    }
+}
+
+/**
+ * 加载翻译数据
+ */
+async function loadLocaleData() {
+    const locale = i18nFunctions.getCurrentLocale();
+    const localeFile = locale.startsWith('zh') ? 'zh-cn' : 'en';
+
+    try {
+        const response = await fetch(`/${EXTENSION_PATH}/locales/${localeFile}.json`);
+        if (response.ok) {
+            localeData = await response.json();
+            if (i18nFunctions.addLocaleData) {
+                i18nFunctions.addLocaleData(locale, localeData);
+            }
+            console.log(`[RescueProxyUI] Loaded locale: ${localeFile}`);
+        }
+    } catch (error) {
+        console.warn('[RescueProxyUI] Failed to load locale data:', error);
+    }
+}
+
+/**
+ * 翻译辅助函数
+ * @param {string} key
+ * @param {string} fallback
+ * @param {...any} args
+ * @returns {string}
+ */
+function t(key, fallback, ...args) {
+    let text = localeData[key] || fallback;
+    args.forEach((arg, i) => {
+        text = text.replace(`\${${i}}`, String(arg));
+    });
+    return text;
 }
 
 /**
@@ -147,10 +208,10 @@ async function loadAvailableProfiles() {
             const data = await response.json();
             const selectEl = $('#rescue_proxy_import_profile');
             selectEl.empty();
-            selectEl.append('<option value="">-- 选择配置 --</option>');
+            selectEl.append(`<option value="">${t('rp_select_profile', '-- Select profile --')}</option>`);
 
             for (const profile of data.profiles || []) {
-                const displayName = profile.name || '未命名配置';
+                const displayName = profile.name || t('rp_unnamed_profile', 'Unnamed profile');
                 const hint = profile.model ? ` (${profile.model})` : '';
                 selectEl.append(`<option value="${profile.id}">${displayName}${hint}</option>`);
             }
@@ -171,7 +232,7 @@ async function importProfile() {
 
     if (!profileId) {
         // @ts-ignore
-        toastr.warning('请先选择要导入的配置', 'Rescue Proxy');
+        toastr.warning(t('rp_select_profile_first', 'Please select a profile to import'), 'Rescue Proxy');
         return;
     }
 
@@ -185,7 +246,7 @@ async function importProfile() {
         if (response.ok) {
             const data = await response.json();
             // @ts-ignore
-            toastr.success(`已导入配置: ${data.imported.profileName}`, 'Rescue Proxy');
+            toastr.success(t('rp_config_imported', 'Imported profile: ${0}', data.imported.profileName), 'Rescue Proxy');
             // 重新加载设置以更新 UI
             await loadSettings();
         } else {
@@ -195,7 +256,7 @@ async function importProfile() {
     } catch (error) {
         console.error('[RescueProxyUI] 导入配置失败:', error);
         // @ts-ignore
-        toastr.error('导入配置失败', 'Rescue Proxy');
+        toastr.error(t('rp_import_failed', 'Import failed'), 'Rescue Proxy');
     }
 }
 
@@ -224,10 +285,10 @@ async function saveSettings() {
         if (response.ok) {
             const data = await response.json();
             // @ts-ignore
-            toastr.success('设置已保存', 'Rescue Proxy');
+            toastr.success(t('rp_config_saved', 'Settings saved'), 'Rescue Proxy');
             if (data.portChanged) {
                 // @ts-ignore
-                toastr.warning('端口已更改，请重启 SillyTavern 以应用新端口', 'Rescue Proxy');
+                toastr.warning(t('rp_port_changed', 'Port changed, please restart SillyTavern to apply'), 'Rescue Proxy');
             }
             // 更新显示的端点
             const port = proxyPort || PROXY_PORT;
@@ -238,7 +299,7 @@ async function saveSettings() {
     } catch (error) {
         console.error('[RescueProxyUI] 保存设置失败:', error);
         // @ts-ignore
-        toastr.error('保存失败', 'Rescue Proxy');
+        toastr.error(t('rp_save_failed', 'Save failed'), 'Rescue Proxy');
     }
 }
 
@@ -251,7 +312,7 @@ async function checkUpdate() {
     const resultEl = document.getElementById('rescue_proxy_update_result');
     const versionEl = document.getElementById('rescue_proxy_version_info');
 
-    resultEl.textContent = '检查中...';
+    resultEl.textContent = t('rp_checking', 'Checking...');
     versionEl.textContent = '';
 
     try {
@@ -261,7 +322,7 @@ async function checkUpdate() {
 
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || '检查失败');
+            throw new Error(error.error || t('rp_check_failed_msg', 'Check failed'));
         }
 
         const data = await response.json();
@@ -270,22 +331,29 @@ async function checkUpdate() {
         let html = '';
 
         for (const repo of data.repos || []) {
-            const localInfo = repo.localCommit || repo.localVersion || '未知';
-            const remoteInfo = repo.latestCommit || '未知';
+            const localInfo = repo.localCommit || repo.localVersion || t('rp_unknown', 'Unknown');
+            const remoteInfo = repo.latestCommit || t('rp_unknown', 'Unknown');
+
+            // 翻译仓库名称
+            let repoName = repo.name;
+            if (repo.name === '后端插件') repoName = t('rp_repo_backend', 'Backend Plugin');
+            else if (repo.name === '前端扩展 (全局)') repoName = t('rp_repo_frontend_global', 'Frontend Extension (Global)');
+            else if (repo.name === '前端扩展 (用户)') repoName = t('rp_repo_frontend_user', 'Frontend Extension (User)');
+            else if (repo.name === '前端扩展') repoName = t('rp_repo_frontend', 'Frontend Extension');
 
             html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">`;
-            html += `<div style="font-weight: bold; margin-bottom: 4px;">${repo.name}</div>`;
-            html += `<div style="font-size: 0.85em; color: #888;">本地: ${localInfo} | 远程: ${remoteInfo}</div>`;
+            html += `<div style="font-weight: bold; margin-bottom: 4px;">${repoName}</div>`;
+            html += `<div style="font-size: 0.85em; color: #888;">${t('rp_local', 'Local')}: ${localInfo} | ${t('rp_remote', 'Remote')}: ${remoteInfo}</div>`;
 
             if (repo.hasUpdate) {
-                html += `<div style="color: #fbbf24; margin-top: 4px;">🆕 有更新可用</div>`;
+                html += `<div style="color: #fbbf24; margin-top: 4px;">${t('rp_update_available_label', '🆕 Update available')}</div>`;
                 html += `<div style="font-size: 0.85em; color: #888; margin-top: 2px;">${repo.latestMessage}</div>`;
-                html += `<a href="${repo.repoUrl}" target="_blank" style="color: #60a5fa; font-size: 0.85em;">前往 GitHub →</a>`;
+                html += `<a href="${repo.repoUrl}" target="_blank" style="color: #60a5fa; font-size: 0.85em;">${t('rp_goto_github', 'Go to GitHub →')}</a>`;
             } else if (repo.localCommit) {
-                html += `<div style="color: #4ade80; margin-top: 4px;">✓ 已是最新</div>`;
+                html += `<div style="color: #4ade80; margin-top: 4px;">${t('rp_up_to_date_label', '✓ Up to date')}</div>`;
             } else {
-                html += `<div style="color: #888; margin-top: 4px;">无法确定版本</div>`;
-                html += `<a href="${repo.repoUrl}" target="_blank" style="color: #60a5fa; font-size: 0.85em;">查看仓库 →</a>`;
+                html += `<div style="color: #888; margin-top: 4px;">${t('rp_cannot_determine', 'Cannot determine version')}</div>`;
+                html += `<a href="${repo.repoUrl}" target="_blank" style="color: #60a5fa; font-size: 0.85em;">${t('rp_view_repo', 'View repo →')}</a>`;
             }
 
             html += `</div>`;
@@ -295,7 +363,7 @@ async function checkUpdate() {
 
         if (data.hasAnyUpdate) {
             // @ts-ignore
-            toastr.info('发现新版本可用', 'Rescue Proxy');
+            toastr.info(t('rp_update_available', 'New version available'), 'Rescue Proxy');
         }
     } catch (error) {
         console.error('[RescueProxyUI] 检查更新失败:', error);
@@ -371,7 +439,7 @@ function clearLogs() {
     displayedLogs = [];
     renderLogs();
     // @ts-ignore
-    toastr.success('显示已清理', 'Rescue Proxy');
+    toastr.success(t('rp_logs_cleared', 'Display cleared'), 'Rescue Proxy');
 }
 
 /**
@@ -379,7 +447,7 @@ function clearLogs() {
  */
 async function deleteHistory() {
     // @ts-ignore
-    if (!confirm('确定要永久删除所有历史记录吗？此操作不可恢复。')) {
+    if (!confirm(t('rp_confirm_delete_history', 'Are you sure you want to permanently delete all history? This action cannot be undone.'))) {
         return;
     }
 
@@ -393,7 +461,7 @@ async function deleteHistory() {
 
         await loadLogs();
         // @ts-ignore
-        toastr.success('历史记录已清空', 'Rescue Proxy');
+        toastr.success(t('rp_history_deleted', 'History cleared'), 'Rescue Proxy');
     } catch (error) {
         console.error('[RescueProxyUI] 清空历史记录失败:', error);
     }
@@ -407,7 +475,7 @@ function renderLogs() {
     const infoEl = $('#rescue_proxy_logs_info');
 
     if (!displayedLogs || displayedLogs.length === 0) {
-        container.html('<div class="rescue-proxy-logs-empty">暂无请求记录</div>');
+        container.html(`<div class="rescue-proxy-logs-empty">${t('rp_no_logs', 'No request logs')}</div>`);
         infoEl.text('');
         return;
     }
@@ -424,7 +492,7 @@ function renderLogs() {
     const html = pageLogs.map(log => {
         const time = new Date(log.timestamp).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         const responseTime = log.responseTime ? `${(log.responseTime / 1000).toFixed(1)}s` : '-';
-        const statusText = log.status === 'success' ? '成功' : log.status === 'error' ? '失败' : '进行中';
+        const statusText = log.status === 'success' ? t('rp_status_success', 'Success') : log.status === 'error' ? t('rp_status_error', 'Failed') : t('rp_status_pending', 'Pending');
 
         return `
             <div class="rescue-proxy-log-item">
@@ -441,15 +509,15 @@ function renderLogs() {
 
     // 显示分页信息
     const pendingCount = displayedLogs.filter(l => l.status === 'pending').length;
-    let info = `第 ${currentPage + 1}/${totalPages} 页，已加载 ${displayedLogs.length}/${totalHistoryLogs + pendingCount} 条`;
-    if (pendingCount > 0) info += `（${pendingCount} 个进行中）`;
+    let info = t('rp_page_info', 'Page ${0}/${1}, loaded ${2}/${3}', currentPage + 1, totalPages, displayedLogs.length, totalHistoryLogs + pendingCount);
+    if (pendingCount > 0) info += `（${t('rp_pending_count', '${0} pending', pendingCount)}）`;
 
     infoEl.html(`
         <span>${info}</span>
         <span class="rescue-proxy-pagination">
-            <button class="menu_button rescue-proxy-page-btn" ${currentPage === 0 ? 'disabled' : ''} onclick="window.rescueProxyPrevPage()">上一页</button>
-            <button class="menu_button rescue-proxy-page-btn" ${currentPage >= totalPages - 1 ? 'disabled' : ''} onclick="window.rescueProxyNextPage()">下一页</button>
-            ${hasMoreHistory ? '<button class="menu_button rescue-proxy-page-btn" onclick="window.rescueProxyShowMore()">显示更多</button>' : ''}
+            <button class="menu_button rescue-proxy-page-btn" ${currentPage === 0 ? 'disabled' : ''} onclick="window.rescueProxyPrevPage()">${t('rp_prev_page', 'Previous')}</button>
+            <button class="menu_button rescue-proxy-page-btn" ${currentPage >= totalPages - 1 ? 'disabled' : ''} onclick="window.rescueProxyNextPage()">${t('rp_next_page', 'Next')}</button>
+            ${hasMoreHistory ? `<button class="menu_button rescue-proxy-page-btn" onclick="window.rescueProxyShowMore()">${t('rp_show_more', 'Load more')}</button>` : ''}
         </span>
     `);
 }
@@ -535,7 +603,7 @@ function renderConsoleLogs() {
     const container = $('#rescue_proxy_console_container');
 
     if (!consoleLogs || consoleLogs.length === 0) {
-        container.html('<div class="rescue-proxy-console-empty">暂无终端日志</div>');
+        container.html(`<div class="rescue-proxy-console-empty">${t('rp_no_console_logs', 'No console logs')}</div>`);
         return;
     }
 
@@ -543,7 +611,7 @@ function renderConsoleLogs() {
         const time = new Date(log.timestamp).toLocaleTimeString('zh-CN', {
             hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
-        const sourceLabel = log.source === 'backend' ? '后端' : '前端';
+        const sourceLabel = log.source === 'backend' ? t('rp_source_backend', 'Backend') : t('rp_source_frontend', 'Frontend');
         const levelLabel = log.level === 'error' ? 'ERR' : log.level === 'warn' ? 'WARN' : 'LOG';
 
         return `
@@ -684,6 +752,10 @@ async function confirmReceived() {
  */
 async function init() {
     console.log('[RescueProxyUI] 初始化中...');
+
+    // 加载国际化
+    await loadI18nModule();
+    await loadLocaleData();
 
     const context = SillyTavern.getContext();
     const { renderExtensionTemplateAsync, eventSource, event_types } = context;

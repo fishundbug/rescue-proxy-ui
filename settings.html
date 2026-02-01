@@ -1,7 +1,7 @@
 <div id="rescue_proxy_settings">
     <div class="inline-drawer">
         <div class="inline-drawer-toggle inline-drawer-header">
-            <b>Rescue Proxy</b>
+            <b data-i18n="rp_title">Rescue Proxy</b>
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
         </div>
         <div class="inline-drawer-content">
@@ -10,89 +10,89 @@
                 <div class="rescue-proxy-tabs">
                     <div class="rescue-proxy-tab active" data-tab="settings">
                         <i class="fa-solid fa-gear"></i>
-                        <span>设置</span>
+                        <span data-i18n="rp_tab_settings">Settings</span>
                     </div>
                     <div class="rescue-proxy-tab" data-tab="logs">
                         <i class="fa-solid fa-list-check"></i>
-                        <span>日志</span>
+                        <span data-i18n="rp_tab_logs">Logs</span>
                     </div>
                 </div>
 
                 <!-- 设置标签页内容 -->
                 <div class="rescue-proxy-tab-content active" data-tab-content="settings">
                     <div class="rescue-proxy-section">
-                        <h4>状态</h4>
+                        <h4 data-i18n="rp_status">Status</h4>
                         <div id="rescue_proxy_status" class="rescue-proxy-status disconnected">
                             <span class="rescue-proxy-status-icon"></span>
-                            <span class="rescue-proxy-status-text">未连接</span>
+                            <span class="rescue-proxy-status-text" data-i18n="rp_status_disconnected">Disconnected</span>
                         </div>
                     </div>
 
 
                     <div class="rescue-proxy-section rescue-proxy-collapsible">
                         <h4 class="rescue-proxy-collapsible-header">
-                            <span>代理配置</span>
+                            <span data-i18n="rp_proxy_config">Proxy Configuration</span>
                             <i class="fa-solid fa-chevron-down"></i>
                         </h4>
                         <div class="rescue-proxy-collapsible-content">
                             <div class="rescue-proxy-input-group">
-                                <label for="rescue_proxy_import_profile">从 SillyTavern 导入配置</label>
+                                <label for="rescue_proxy_import_profile" data-i18n="rp_import_from_st">Import from SillyTavern</label>
                                 <div style="display: flex; gap: 8px; align-items: center;">
                                     <select id="rescue_proxy_import_profile" style="flex: 1;">
-                                        <option value="">-- 选择配置 --</option>
+                                        <option value="" data-i18n="rp_select_profile">-- Select profile --</option>
                                     </select>
                                     <button id="rescue_proxy_import_btn" class="menu_button"
-                                        style="min-width: 60px;">导入</button>
+                                        style="min-width: 60px;" data-i18n="rp_import">Import</button>
                                 </div>
                             </div>
 
                             <div class="rescue-proxy-input-group">
-                                <label for="rescue_proxy_api_url">API 地址</label>
+                                <label for="rescue_proxy_api_url" data-i18n="rp_api_url">API URL</label>
                                 <input type="text" id="rescue_proxy_api_url" placeholder="https://api.openai.com/v1" />
                             </div>
 
                             <div class="rescue-proxy-input-group">
-                                <label for="rescue_proxy_api_key">API Key</label>
+                                <label for="rescue_proxy_api_key" data-i18n="rp_api_key">API Key</label>
                                 <input type="text" id="rescue_proxy_api_key" placeholder="sk-..." />
                             </div>
 
                             <div class="rescue-proxy-input-group">
-                                <label for="rescue_proxy_port">代理端口</label>
+                                <label for="rescue_proxy_port" data-i18n="rp_proxy_port">Proxy Port</label>
                                 <input type="number" id="rescue_proxy_port" placeholder="5501" min="1" max="65535" />
-                                <small style="color: #888; font-size: 0.8em;">修改端口后需重启 SillyTavern 生效</small>
+                                <small style="color: #888; font-size: 0.8em;" data-i18n="rp_port_restart_note">Port change requires SillyTavern restart</small>
                             </div>
 
                             <div class="rescue-proxy-input-group">
-                                <label for="rescue_proxy_proxy_api_key">代理 API Key（可选）</label>
-                                <input type="text" id="rescue_proxy_proxy_api_key" placeholder="留空则不验证" />
-                                <small style="color: #888; font-size: 0.8em;">用于验证请求来源，防止其他程序调用</small>
+                                <label for="rescue_proxy_proxy_api_key" data-i18n="rp_proxy_api_key">Proxy API Key (Optional)</label>
+                                <input type="text" id="rescue_proxy_proxy_api_key" data-i18n="[placeholder]rp_leave_empty" placeholder="Leave empty to skip validation" />
+                                <small style="color: #888; font-size: 0.8em;" data-i18n="rp_proxy_api_key_note">For request validation, prevents unauthorized access</small>
                             </div>
 
-                            <button id="rescue_proxy_save_settings" class="menu_button">保存配置</button>
+                            <button id="rescue_proxy_save_settings" class="menu_button" data-i18n="rp_save_config">Save Configuration</button>
                         </div>
                     </div>
 
                     <div class="rescue-proxy-section rescue-proxy-collapsible collapsed">
                         <h4 class="rescue-proxy-collapsible-header">
-                            <span>使用说明</span>
+                            <span data-i18n="rp_usage_guide">Usage Guide</span>
                             <i class="fa-solid fa-chevron-down"></i>
                         </h4>
                         <div class="rescue-proxy-collapsible-content">
                             <div class="rescue-proxy-info">
-                                <p>1. 在上方配置真实的 AI API 地址和密钥</p>
-                                <p>2. 在 SillyTavern 的 <strong>Chat Completion API</strong> 设置中：</p>
-                                <p style="margin-left: 12px;">• 选择 <strong>Custom (OpenAI-compatible)</strong></p>
-                                <p style="margin-left: 12px;">• 将 API 地址设为：</p>
+                                <p data-i18n="rp_guide_step1">1. Configure the real AI API URL and key above</p>
+                                <p data-i18n="rp_guide_step2">2. In SillyTavern's Chat Completion API settings:</p>
+                                <p style="margin-left: 12px;" data-i18n="rp_guide_step2a">• Select Custom (OpenAI-compatible)</p>
+                                <p style="margin-left: 12px;" data-i18n="rp_guide_step2b">• Set API URL to:</p>
                                 <p><code id="rescue_proxy_endpoint">http://127.0.0.1:5501/v1</code></p>
-                                <p style="margin-top: 8px;">3. 将 API Key 设为上方的"代理 API Key"（若未配置则可填任意值）</p>
+                                <p style="margin-top: 8px;" data-i18n="rp_guide_step3">3. Set API Key to the "Proxy API Key" above (or any value if not configured)</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="rescue-proxy-section">
-                        <h4>版本信息</h4>
+                        <h4 data-i18n="rp_version_info">Version Info</h4>
                         <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-                            <button id="rescue_proxy_check_update" class="menu_button">检查更新</button>
+                            <button id="rescue_proxy_check_update" class="menu_button" data-i18n="rp_check_update">Check Update</button>
                             <span id="rescue_proxy_version_info" style="font-size: 0.9em; color: #888;"></span>
                         </div>
                         <div id="rescue_proxy_update_result" style="font-size: 0.9em;"></div>
@@ -103,21 +103,22 @@
                 <div class="rescue-proxy-tab-content" data-tab-content="logs">
                     <div class="rescue-proxy-section rescue-proxy-collapsible">
                         <h4 class="rescue-proxy-collapsible-header">
-                            <span>请求日志</span>
+                            <span data-i18n="rp_request_logs">Request Logs</span>
                             <i class="fa-solid fa-chevron-down"></i>
                         </h4>
                         <div class="rescue-proxy-collapsible-content">
                             <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                                <button id="rescue_proxy_refresh_logs" class="menu_button">刷新</button>
-                                <button id="rescue_proxy_clear_logs" class="menu_button">清理</button>
+                                <button id="rescue_proxy_refresh_logs" class="menu_button" data-i18n="rp_refresh">Refresh</button>
+                                <button id="rescue_proxy_clear_logs" class="menu_button" data-i18n="rp_clear">Clear</button>
                             </div>
                             <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
                                 <button id="rescue_proxy_delete_history" class="menu_button rescue-proxy-danger-btn"
-                                    title="永久删除日志文件中的所有记录">清空历史记录</button>
-                                <span style="font-size: 0.8em; color: #888;">⚠️ 将永久删除日志文件</span>
+                                    data-i18n="[title]rp_delete_history_warning;rp_delete_history"
+                                    title="Will permanently delete log files">Delete History</button>
+                                <span style="font-size: 0.8em; color: #888;" data-i18n="rp_delete_history_warning">⚠️ Will permanently delete log files</span>
                             </div>
                             <div id="rescue_proxy_logs_container" class="rescue-proxy-logs">
-                                <div class="rescue-proxy-logs-empty">暂无请求记录</div>
+                                <div class="rescue-proxy-logs-empty" data-i18n="rp_no_logs">No request logs</div>
                             </div>
                             <div id="rescue_proxy_logs_info" class="rescue-proxy-logs-info"></div>
                         </div>
@@ -125,21 +126,21 @@
 
                     <div class="rescue-proxy-section rescue-proxy-collapsible">
                         <h4 class="rescue-proxy-collapsible-header">
-                            <span>终端日志</span>
+                            <span data-i18n="rp_console_logs">Console Logs</span>
                             <i class="fa-solid fa-chevron-down"></i>
                         </h4>
                         <div class="rescue-proxy-collapsible-content">
                             <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
-                                <button id="rescue_proxy_refresh_console" class="menu_button">刷新</button>
-                                <button id="rescue_proxy_clear_console" class="menu_button">清理</button>
+                                <button id="rescue_proxy_refresh_console" class="menu_button" data-i18n="rp_refresh">Refresh</button>
+                                <button id="rescue_proxy_clear_console" class="menu_button" data-i18n="rp_clear">Clear</button>
                                 <label
                                     style="display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: auto;">
                                     <input type="checkbox" id="rescue_proxy_console_follow" />
-                                    <span style="font-size: 0.85em;">追踪</span>
+                                    <span style="font-size: 0.85em;" data-i18n="rp_follow">Follow</span>
                                 </label>
                             </div>
                             <div id="rescue_proxy_console_container" class="rescue-proxy-console">
-                                <div class="rescue-proxy-console-empty">暂无终端日志</div>
+                                <div class="rescue-proxy-console-empty" data-i18n="rp_no_console">No console logs</div>
                             </div>
                         </div>
                     </div>
