@@ -242,28 +242,6 @@ async function saveSettings() {
     }
 }
 
-/**
- * 测试连接（测试独立代理服务器）
- */
-async function testConnection() {
-    const resultEl = document.getElementById('rescue_proxy_test_result');
-    resultEl.textContent = '测试中...';
-
-    try {
-        const response = await fetch(`http://127.0.0.1:${PROXY_PORT}/health`);
-        if (response.ok) {
-            const data = await response.json();
-            resultEl.innerHTML = `<span style="color: #4ade80;">✓ 代理服务器连接成功 (端口 ${data.port})</span>`;
-            updateStatus(true, data.port);
-        } else {
-            resultEl.innerHTML = `<span style="color: #f87171;">✗ 连接失败: HTTP ${response.status}</span>`;
-            updateStatus(false);
-        }
-    } catch (error) {
-        resultEl.innerHTML = `<span style="color: #f87171;">✗ 代理服务器未运行或无法连接</span>`;
-        updateStatus(false);
-    }
-}
 
 /**
  * 检查 GitHub 更新
@@ -724,7 +702,6 @@ async function init() {
 
     // 绑定事件
     $('#rescue_proxy_save_settings').on('click', saveSettings);
-    $('#rescue_proxy_test').on('click', testConnection);
     $('#rescue_proxy_import_btn').on('click', importProfile);
     $('#rescue_proxy_check_update').on('click', checkUpdate);
     $('#rescue_proxy_refresh_logs').on('click', () => loadLogs());
